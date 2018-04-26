@@ -11,6 +11,8 @@ import cv2
 import random
 import os
 
+save = True # whether or not save confusion matrix of each approach to file
+
 # returns the confusion matrix for output prediction output from network
 # each row is assumed to be a datapoint
 def gen_confusion_mat(y_real, y_pred, pprint=True):
@@ -35,9 +37,12 @@ flags = tf.app.flags
 
 # load data
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+labels = set(list(y_train.flatten())) # 0,1,2,3,4,5,6,7,8,9
+print('classes: ', labels) 
+
 print('before flattening...')
 print('Input shape: ', x_train.shape)
-num_classes = 10
+num_classes = len(set(list(y_train.flatten())))
 y_train, y_test = to_categorical(y_train, num_classes), to_categorical(y_test, num_classes)
 # generate grayscale flattened arrays
 x_train = np.array([flatten_img(img) for img in x_train])
@@ -84,5 +89,21 @@ model.fit(x_train, y_train,
             shuffle=True)
 
 predictions =  model.predict(x_test)
-print(predictions)
-gen_confusion_mat(y_test, predictions)
+conf_mat_A = gen_confusion_mat(y_test, predictions)
+np.savetxt('conf_mat_A.csv', conf_mat_A, delimiter=',')
+
+
+# A. FULLY RANDOM
+#zipped = list(zip(x_train, y_train))
+#random.shuffle(zipped)
+#x_train, y_train = zip(*zipped)
+
+# run
+model.fit(x_train, y_train,
+            batch_size=BATCH,
+            epochs=EPOCHS,
+            validation_split=0.2,
+            shuffle=True)
+
+predictions =  model.predict(x_test)
+conf_mat_A = gen_confusion_mat(y_test, predictions)
