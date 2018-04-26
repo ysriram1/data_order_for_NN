@@ -6,6 +6,7 @@ from keras.datasets import cifar10
 from keras.utils import to_categorical
 from keras.losses import categorical_crossentropy
 from sklearn.metrics import confusion_matrix
+import cv2
 import random
 import os
 
@@ -21,7 +22,12 @@ def gen_confusion_mat(y_real, y_pred, pprint=True):
     if pprint: print(confusion_mat)
     return confusion_mat
 
-# TODO: define flags
+# returns a flat vector instead of an image matrix. Also converts image to gray
+def flatten_img(img):
+    gray = cv2.rgb2gray(img)
+    return gray.flatten()
+
+# TODO: add flags
 flags = tf.app.flags
 
 # load data
@@ -34,8 +40,8 @@ x_train, x_test = x_train.astype('float32'), x_test.astype('float32')
 x_train, x_test = x_train/255, x_test/255
 
 # the parameters
-BATCH = 32
-EPOCHS = 30
+BATCH = 800
+EPOCHS = 10
 LEARN = 0.001 # learning rate
 
 # the network (feedforward without convolutional layers)
